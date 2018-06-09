@@ -2,15 +2,19 @@
 
 namespace Komiwojazer
 {
-    class Point
+    public class Point
     {
         public double x;
         public double y;
+        public float xPos;
+        public float yPos;
 
         public Point(double x, double y)
         {
             this.x = x;
             this.y = y;
+            xPos = (float)x * Program.multiplier;
+            yPos = (float)y * Program.multiplier;
         }
 
         public static List<Point> GetPoints(params double[] coords)
@@ -22,5 +26,7 @@ namespace Komiwojazer
             }
             return points;
         }
+
+
     }
 }
