@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Komiwojazer
 {
@@ -27,6 +28,14 @@ namespace Komiwojazer
             return points;
         }
 
+        public override string ToString()
+        {
+            return string.Format("({0}, {1})", x, y);
+        }
 
+        public static double Distance(Point a, Point b)
+        {
+            return (Math.Sqrt(Math.Pow(a.x - b.x, 2) + Math.Pow(a.y - b.y, 2)));
+        }
     }
 }

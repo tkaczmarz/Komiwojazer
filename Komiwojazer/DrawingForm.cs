@@ -64,6 +64,12 @@ namespace Komiwojazer
                 PointF p = GetPoint(point.xPos, point.yPos);
                 DrawPoint(new PointF(p.X - 2, p.Y - 2), g, red);
             }
+            if (points.Count > 1)
+            {
+                PointF p1 = GetPoint(points[points.Count - 1].xPos, points[points.Count - 1].yPos);
+                PointF p2 = GetPoint(points[0].xPos, points[0].yPos);
+                g.DrawLine(linePen, p1, p2);
+            }
         }
 
         private void DrawPoint(PointF point, Graphics g, Color color)
