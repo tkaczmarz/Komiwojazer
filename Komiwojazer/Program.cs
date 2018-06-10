@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -7,16 +8,19 @@ namespace Komiwojazer
     public class Program
     {
         public static float multiplier = 30;
+        private static List<Point> points;
+        private static double[,] distances;
+        private static List<Point> path;
 
         static void Main(string[] args)
         {
-            List<Point> points = Point.GetPoints(-2, -5, 0, 4, 2, 3, 1, 7);
+            points = Point.GetPoints(-2, -5, 0, 4, 2, 3, 1, 7);
             
             Console.WriteLine("Obliczanie ścieżki dla punktów:");
             Print(points);
             Console.WriteLine();
 
-            List<Point> path = Algorithm(points);
+            Algorithm(points);
 
             Console.WriteLine("Ścieżka wynikowa:");
             for (int i = 0; i < path.Count; i++)
@@ -30,51 +34,80 @@ namespace Komiwojazer
 
             Console.ReadKey();
         }
-
-        private static List<Point> Algorithm(List<Point> points)
+        
+        private static void Algorithm(List<Point> points)
         {
             // calculate distances
-            Dictionary<Point, double[]> distances = new Dictionary<Point, double[]>();
+            distances = new double[points.Count, points.Count];
             for (int i = 0; i < points.Count; i++)
             {
-                List<double> dist = new List<double>();
                 for (int j = 0; j < points.Count; j++)
                 {
-                    dist.Add(Point.Distance(points[i], points[j]));
+                    distances[i, j] = Point.Distance(points[i], points[j]);
                 }
-                distances.Add(points[i], dist.ToArray());
             }
             Console.WriteLine("Odległości:");
-            foreach (Point p in points)
+            for (int i = 0; i < points.Count; i++)
             {
-                Print(distances[p]);
+                for (int j = 0; j < points.Count; j++)
+                {
+                    Console.Write(distances[i, j] + ", ");
+                }
+                Console.WriteLine("\b\b  ");
             }
             Console.WriteLine();
 
-            List<Point> B = new List<Point>();
-            B.Add(points[0]);
-            B.Add(points[1]);
+            path = new List<Point>();
+            path.Add(points[0]);
+            List<int> neighbors = new List<int>();
+            for (int i = 1; i < points.Count; i++)
+                neighbors.Add(i);
+            double c = g(0, neighbors);
+            Console.WriteLine("Cost of path = " + c);
+        }
 
-            //double[] B = new double[(int)Math.Pow(points.Count, 2)];
-            //B[1] = Point.Distance(points[0], points[1]);
-
-            for (int j = 2; j < points.Count; j++)
+        private static double g(int node, List<int> neighbors)
+        {
+            //Console.Write("Calculating for [" + node + ", {");
+            //foreach (int i in neighbors)
+            //    Console.Write(i + ", ");
+                
+            if (neighbors.Count > 0)
             {
-                Print(B);
+                //Console.WriteLine("\b\b}] ");
+                double cost = 0;
+                List<double> costs = new List<double>();
                 double min = double.MaxValue;
-                double suma = 0;
-                for (int i = j - 2; i >= 1; i--)
+                int idx = 0;
+                for (int i = 0; i < neighbors.Count; i++)
                 {
-                    double d = B[i + 1] + Point.Distance(points[i], points[j]) + suma;
-                    if (d < min)
-                        min = d;
-                    suma += Point.Distance(points[i], points[i + 1]);
+                    cost = distances[node, neighbors[i]];
+                    List<int> S = new List<int>(neighbors);
+                    int newNode = S[i];
+                    S.RemoveAt(i);
+                    costs.Add(cost + g(newNode, S));
+                    if (costs[costs.Count - 1] < min)
+                    {
+                        min = costs[costs.Count - 1];
+                        idx = newNode;
+                    }
                 }
-                B[j] = min;
-            }
-            Print(B);
 
-            return new List<Point>();
+                return Min(costs);
+            }
+            else
+                return distances[node, 0];
+        }
+
+        private static double Min(List<double> list)
+        {
+            double min = double.MaxValue;
+            foreach (double d in list)
+            {
+                if (d < min)
+                    min = d;
+            }
+            return min;
         }
 
         private static void Print<T>(List<T> list)
